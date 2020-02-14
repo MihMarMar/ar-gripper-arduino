@@ -1,5 +1,9 @@
 #include "gripper.h"
 
+//TODO:: add feedback to the arm through Serial
+
+#define MAX_PRESSURE_TRESHOLD 1000
+
 // pin numbers 
 #define SERVO_PIN 9
 #define PRESSURE_SENSOR A0
@@ -8,7 +12,13 @@
 #define COM_BEGIN_CHAR '_'
 #define COM_END_CHAR '#'
 
-Gripper gripper = Gripper(SERVO_PIN, PRESSURE_SENSOR, 1000);
+// commands to control the arm
+#define COM_OPEN "OPEN"
+#define COM_CLOSE "CLOSE"
+
+Gripper gripper = Gripper(SERVO_PIN, PRESSURE_SENSOR, MAX_PRESSURE_TRESHOLD);
+
+String commandString; // command buffer
 
 void poll_serial(String &commandString){
   // a function to read data if there's something in the serial buffer 
@@ -32,12 +42,12 @@ void command_gripper(String command){
     return;
   }
 
-  if (command.substring(1, 4) == "OPEN") { 
+  if (command.substring(1, strlen(COM_OPEN)) == COM_OPEN) { 
     gripper.open();
     return;
   }
 
-  if (command.substring(1, 4) == "CLOSE") { 
+ if (command.substring(1, strlen(COM_CLOSE)) == COM_CLOSE) { 
     gripper.close();
     return; 
   }
@@ -47,15 +57,14 @@ void command_gripper(String command){
 }
 
 
-String commandString; // command buffer
-
 void setup() {
   Serial.begin(115200);
 }
 
 void loop() {
   poll_serial(commandString);
-
+  
+  
 }
 
   
