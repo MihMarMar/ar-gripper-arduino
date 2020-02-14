@@ -5,6 +5,7 @@
 #define MSG_ARM_CLOSED "Arm closed" 
 #define MSG_ARM_OPENING "Arm opening"
 #define MSG_ARM_OPENED "Arm opened"
+#define MSG_FAIL "FAIL"
 
 enum state {S_OPEN,     // arm is fully open 
         	  S_CLOSING,  // arm is closing/grabbing item
@@ -20,7 +21,7 @@ private:
 	unsigned int max_pressure;
 	unsigned int current_pressure; 
 	state c_state; 
-	int read_pressure(); 
+
 public: 
 	Gripper(int, int, int);
 
@@ -30,6 +31,9 @@ public:
 
 	void open();
 
+  void fail();
+
 	void set_max_pressure(int);
 
+  int read_pressure(); 
 }; 

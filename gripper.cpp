@@ -37,6 +37,16 @@ void Gripper::open(){
     Serial.print(MSG_ARM_OPENED);
 }
 
+void Gripper::fail(){ // same as open(), but signals fault instead
+    do {
+        servo.write(--servo_pos);
+        delay(5); // slow it down
+    } while (servo_pos > 0);
+    c_state = S_OPEN;
+    Serial.println(MSG_FAIL);
+}
+
+
 void Gripper::set_max_pressure(int max_pressure){
     this->max_pressure = max_pressure; 
 }

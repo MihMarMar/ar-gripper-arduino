@@ -16,12 +16,13 @@
 #define COM_OPEN "OPEN"
 #define COM_CLOSE "CLOSE"
 
+
 Gripper gripper = Gripper(SERVO_PIN, PRESSURE_SENSOR, MAX_PRESSURE_TRESHOLD);
 
 String commandString; // command buffer
 
+// reads data if there's something in the serial buffer 
 void poll_serial(String &commandString){
-  // a function to read data if there's something in the serial buffer 
   if (Serial.available()) {
     
     // get the new byte and save it to command string 
@@ -57,13 +58,34 @@ void command_gripper(String command){
 }
 
 
+// checks whether the item has fallen off unexpectedly
+// returns 1 if fallen off, 0 otherwise
+int is_item_fallen_off(){
+  if (gripper.get_state() != S_CLOSED){
+    return 0; // if arm isn't in closed state we don't care about pressure
+  }
+
+  // if there is still some pressure -> item has not fallen off
+  // this assumes that the presure doesn't fluctuate a lot and stays constant
+  // i.e. it will not go under 50 while item is still grabbed
+  // otherwise a more complex way of checking can be added
+  if (gripper.read_pressure() > 50){
+    return 0; 
+  }
+  
+  return 1; 
+}
+
 void setup() {
   Serial.begin(115200);
 }
 
 void loop() {
   poll_serial(commandString);
-  
+
+  if(is_item_fallen_off()){
+    gripper.open();
+  }
   
 }
 
