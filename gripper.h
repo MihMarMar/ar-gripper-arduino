@@ -1,16 +1,13 @@
 #include "Arduino.h"
 #include <Servo.h>
 
-#define MSG_ARM_CLOSING "Arm closing" //ToDo: change when arm communication protocol is figured out
-#define MSG_ARM_CLOSED "Arm closed" 
-#define MSG_ARM_OPENING "Arm opening"
-#define MSG_ARM_OPENED "Arm opened"
-#define MSG_FAIL "FAIL"
-
-enum state {S_OPEN,     // arm is fully open 
-        	  S_CLOSING,  // arm is closing/grabbing item
-        	  S_CLOSED,   // arm has currently grabbed an item 
-        	  S_FAIL};    // item has fallen of unexpectedly
+enum state {
+            S_INITIALIZATION,   //initializing gripper
+            S_IDLE,             // gripper is idle state
+        	  S_CLOSING,          // arm is closing/grabbing item
+        	  S_HOLDING,          // arm has currently grabbed an item 
+            S_PARTIAL_OPEN,     // gripper is partially opening 
+        	  S_END};             // gripper signal UR5 to reset its 
 
 class Gripper {
 private: 
@@ -22,18 +19,26 @@ private:
 	unsigned int current_pressure; 
 	state c_state; 
 
-public: 
-	Gripper(int, int, int);
+  void initializing();
 
-	state get_state();
+  void idling();
+  
+  void closing();
 
-	void close();
+  void holding();
 
-	void open();
+  void partial_open();
 
-  void fail();
-
-	void set_max_pressure(int);
+  void end_tasking();
 
   int read_pressure(); 
+
+public: 
+	Gripper(int servo_pin, int pressure_pin, int max_pressure);
+  
+  void work();
+  
+	void set_max_pressure(int);
+  
+  state get_state();
 }; 
