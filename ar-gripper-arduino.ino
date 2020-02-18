@@ -2,13 +2,14 @@
 
 //TODO:: add feedback to the arm through Serial
 
-#define MAX_PRESSURE_TRESHOLD 1000
+#define MAX_PRESSURE_TRESHOLD 900
+#define MAX_SERVO_THRESHOLD 180
 
 // pin numbers 
 #define SERVO_PIN 9
 #define PRESSURE_SENSOR A0
 
-Gripper gripper = Gripper(SERVO_PIN, PRESSURE_SENSOR, MAX_PRESSURE_TRESHOLD);
+Gripper gripper = Gripper(SERVO_PIN, PRESSURE_SENSOR, MAX_PRESSURE_TRESHOLD, MAX_SERVO_THRESHOLD);
 
 // checks whether the item has fallen off unexpectedly
 // returns 1 if fallen off, 0 otherwise

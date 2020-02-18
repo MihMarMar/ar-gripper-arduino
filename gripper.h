@@ -16,6 +16,7 @@ private:
 	int pressure_pin;
 	unsigned int servo_pos; 
 	unsigned int max_pressure;
+  unsigned int max_angle;
 	unsigned int current_pressure; 
 	state c_state; 
 
@@ -34,7 +35,7 @@ private:
   int read_pressure(); 
 
 public: 
-	Gripper(int servo_pin, int pressure_pin, int max_pressure);
+	Gripper(int servo_pin, int pressure_pin, int max_pressure, int max_angle);
   
   void work();
   

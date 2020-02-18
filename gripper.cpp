@@ -1,9 +1,10 @@
 #include "gripper.h"
 
-Gripper::Gripper(int servo_pin, int pressure_pin, int max_pressure){
+Gripper::Gripper(int servo_pin, int pressure_pin, int max_pressure, int max_angle){
     this->servo_pin = servo_pin;
     this->pressure_pin = pressure_pin;
     this->max_pressure = max_pressure;
+    this->max_angle = max_angle;
     this->servo_pos = 0;  
     pinMode(pressure_pin, INPUT); 
     servo.attach(servo_pin);
