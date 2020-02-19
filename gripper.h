@@ -20,6 +20,10 @@ private:
 	unsigned int current_pressure; 
 	state c_state; 
 
+  const String  read_ur5();
+
+  void signal_ur5(const String& message);
+
   void initializing();
 
   void idling();
