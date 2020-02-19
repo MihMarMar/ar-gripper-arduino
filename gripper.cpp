@@ -5,10 +5,15 @@ Gripper::Gripper(int servo_pin, int pressure_pin, int max_pressure, int max_angl
     this->pressure_pin = pressure_pin;
     this->max_pressure = max_pressure;
     this->max_angle = max_angle;
-    this->servo_pos = 90;  
+    this->servo_pos = 40;  
     pinMode(pressure_pin, INPUT); 
     this->servo.attach(servo_pin);
-    c_state = S_INITIALIZATION;
+    this->c_state = S_INITIALIZATION;
+}
+
+Gripper::Gripper()
+{
+    
 }
 
 state Gripper::get_state(){
@@ -64,6 +69,12 @@ void Gripper::signal_ur5(const String& message)
   Serial.println(message);
 }
 
+void Gripper::test()
+{
+  this->servo.write(0);
+  delay(200);
+}
+
 void Gripper::work()
 {
   switch(this->c_state)
@@ -71,7 +82,6 @@ void Gripper::work()
     case S_INITIALIZATION:
     {
       initializing();
-      delay(100);
       break;
     }
 
@@ -84,7 +94,6 @@ void Gripper::work()
 
     case S_CLOSING:
     {
-      Serial.println("closing");
       closing();
       break;
     }
@@ -124,11 +133,13 @@ void Gripper::initializing()
     //drive servo
     Serial.print("initializing ");
     Serial.println(this->servo_pos);
-    this->servo_pos --;
+    
     if(this->servo_pos > 0)
     {
       //opening
       this->servo.write(this->servo_pos);
+      delay(20);
+      this->servo_pos --;
     }
     else
     {
@@ -157,11 +168,14 @@ void Gripper::closing()
     //drive servo
 
     read_pressure();
+    this->servo_pos ++; 
     if(this->current_pressure < this->max_pressure && this->servo_pos < 180)
     {
       //closing
-      servo.write(++servo_pos);
-      delay(20);
+      Serial.print("closing ");
+      Serial.println(this->servo_pos);
+      servo.write(this->servo_pos);
+      delay(100);
     }
     else
     {
@@ -179,8 +193,8 @@ void Gripper::holding()
   
   //ur5 command not received and gripper still holding the object
   String ur5_str = read_ur5();
-  
-  if(ur5_str != "release" && this->current_pressure >=0) 
+  read_pressure();
+  if(ur5_str != "release" && this->current_pressure >0) 
   {
     //do nothing
     Serial.println(current_pressure);
@@ -204,17 +218,18 @@ void Gripper::holding()
 void Gripper::partial_open()
 { 
   //open until sensor read 0
- String ur5_str = read_ur5();
-  if(this->read_pressure() >= 0 && ur5_str != "sensor")
+  String ur5_str = read_ur5();
+  this->servo_pos --;
+  if(this->read_pressure() > 0 && this->servo_pos > 0)
   {
     //opening
-    this->servo_pos --;
     servo.write(this->servo_pos);
-    delay(20);
+    delay(100);
   }
   else
   {
     signal_ur5("Object placed");
+    Serial.println(this->servo_pos);
     this->c_state = S_END;
     delay(500);
   }
@@ -224,11 +239,12 @@ void Gripper::end_tasking()
 { 
   //check for ur5 signal
   //if the signal was received
+  Serial.println(this->servo_pos);
   if(read_ur5() == "reset")
   {
-    this->servo_pos = 50;
     this->c_state = S_INITIALIZATION;
   }
+  
 }
 
 void Gripper::set_max_pressure(int max_pressure){

@@ -39,11 +39,15 @@ private:
   int read_pressure(); 
 
 public: 
+  Gripper::Gripper();
+  
 	Gripper(int servo_pin, int pressure_pin, int max_pressure, int max_angle);
   
   void work();
   
 	void set_max_pressure(int);
+
+  void test();
   
   state get_state();
 }; 
