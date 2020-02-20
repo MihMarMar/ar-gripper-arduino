@@ -1,6 +1,11 @@
 #include "Arduino.h"
 #include <Servo.h>
 
+#define TX0 4
+#define TX1 5
+#define RX0 7
+#define RX1 8
+
 enum state {
             S_INITIALIZATION,   //initializing gripper
             S_IDLE,             // gripper is idle state
@@ -18,9 +23,16 @@ private:
 	unsigned int max_pressure;
   unsigned int max_angle;
 	unsigned int current_pressure; 
+
+  unsigned long time_ms;
+  bool          fsr_triggered;
 	state c_state; 
 
-  const String  read_ur5();
+  const String read_ur5_sim();
+
+  void signal_ur5_sim(const String& message);
+
+  const String read_ur5();
 
   void signal_ur5(const String& message);
 

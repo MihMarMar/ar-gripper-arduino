@@ -1,6 +1,6 @@
 #include "gripper.h"
 
-#define MAX_PRESSURE_TRESHOLD 800
+#define MAX_PRESSURE_TRESHOLD 100
 #define MAX_SERVO_THRESHOLD 120
 
 // pin numbers 
