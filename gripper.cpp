@@ -249,14 +249,6 @@ void Gripper::closing()
     //drive servo
     
     read_pressure();
-
-    if(this->current_pressure >= this->max_pressure && this->fsr_triggered == false)
-    {
-      this->fsr_triggered = true;
-      this->time_ms = millis();
-      Serial.println(this->time_ms);
-    }
-
     this->servo_pos --; 
     if(this->current_pressure < this->max_pressure && this->servo_pos > 100)
     {
@@ -266,23 +258,22 @@ void Gripper::closing()
       servo.write(this->servo_pos);     
       delay(100);
     }
+    else if(this->current_pressure >= this->max_pressure)
+    {
+      this->servo_pos -= 10;
+      servo.write(this->servo_pos);     
+      delay(100);
+      //change state
+      signal_ur5_sim("Object gripped");
+      this->c_state = S_HOLDING;
+      delay(500);
+    }
     else
     {
       //changing state
-      unsigned long time_now;
-      time_now = millis();
-      Serial.println(time_now);
-      if(time_now > this->time_ms+ 8000 )
-      {
-        signal_ur5_sim("Object gripped");
-        this->c_state = S_HOLDING;
-        this->fsr_triggered = false;
-        delay(500);
-      }
-      if(this->servo_pos <= 100)
-      {
-        this->servo_pos = 101;
-      }
+      signal_ur5_sim("Object gripped");
+      this->c_state = S_HOLDING;
+      delay(500);
     }
 }
 
@@ -294,7 +285,7 @@ void Gripper::holding()
   //ur5 command not received and gripper still holding the object
   String ur5_str = read_ur5_sim();
   read_pressure();
-  if(ur5_str != "release" && this->current_pressure >0) 
+  if(ur5_str != "release") 
   {
     //do nothing
     Serial.println(current_pressure);
@@ -305,12 +296,6 @@ void Gripper::holding()
     // go to partial opening
     Serial.println("arm in placing position ");
     this->c_state = S_PARTIAL_OPEN;
-  }
-  else //timer > s
-  {
-    // go to end
-    Serial.println(ur5_str);
-    this->c_state = S_END;
   }
   delay(500);
 }
